@@ -268,7 +268,12 @@ export const contextHandler: EventHandler = {
     // --continue, --resume and /resume restore the existing conversation.
     // A fresh timeline would change its prompt prefix and invalidate the cache.
     // Also guard direct calls from older hook registrations that include resume.
-    if (input.platform === 'claude-code' && input.sessionSource === 'resume') {
+    // Grok source `load` is the same kind of reopen. Source `new` is a fresh
+    // session, including /new and /clear, and still receives the timeline.
+    if (
+      (input.platform === 'claude-code' && input.sessionSource === 'resume')
+      || (input.platform === 'grok' && input.sessionSource === 'load')
+    ) {
       delete emptyResult.workStateTelemetry;
       return emptyResult;
     }
@@ -359,9 +364,12 @@ export const contextHandler: EventHandler = {
     // Codex already receives the timeline through additionalContext. Repeating
     // it as systemMessage can push SessionStart stdout past Codex's hook-output
     // limit, causing Codex to discard the entire payload (including context).
+    // Codex and Grok have one SessionStart field. A second copy of the
+    // timeline can exceed the host output limit, and Grok then drops the reply.
     const showTerminalOutput =
       settings.CLAUDE_MEM_CONTEXT_SHOW_TERMINAL_OUTPUT === 'true'
-      && input.platform !== 'codex';
+      && input.platform !== 'codex'
+      && input.platform !== 'grok';
 
     // Server runtime reads the shared server (plan-24 step 4). When the server
     // settings are incomplete, resolveRuntimeContext() falls back to the worker,

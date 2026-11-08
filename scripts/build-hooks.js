@@ -254,6 +254,23 @@ export function shellTemplateManifest(buildShellCommand, buildCodexWindowsComman
         'SubagentStart.0.0': codexHookPair(['hook', 'codex', 'subagent-context']),
       },
     },
+    // Grok reads SessionStart only for source new or load, and only a top-level
+    // systemMessage. UserPromptSubmit still runs so the prompt is stored.
+    // Grok discards additionalContext from that hook. PreToolUse delivers
+    // additionalContext. The timeout is above the 5 second observe default.
+    // A shorter timeout stops the context hook before the worker answers.
+    'plugin/hooks/grok-hooks.json': {
+      kind: 'hooks',
+      commands: {
+        'SessionStart.0.0': codexHookPair(['hook', 'grok', 'context'], { timeout: 60 }),
+        'UserPromptSubmit.0.0': codexHookPair(['hook', 'grok', 'session-init'], { timeout: 15 }),
+        'PreToolUse.0.0': codexHookPair(['hook', 'grok', 'file-context'], { timeout: 15 }),
+        'PostToolUse.0.0': codexHookPair(['hook', 'grok', 'observation'], { timeout: 5 }),
+        'PostToolUseFailure.0.0': codexHookPair(['hook', 'grok', 'observation'], { timeout: 5 }),
+        'Stop.0.0': codexHookPair(['hook', 'grok', 'summarize'], { timeout: 120 }),
+        'SessionEnd.0.0': codexHookPair(['hook', 'grok', 'session-end'], { timeout: 20 }),
+      },
+    },
     'plugin/.mcp.json': {
       kind: 'mcp',
       command: buildShellCommand({
@@ -1191,6 +1208,7 @@ async function buildHooks() {
       'plugin/skills/how-it-works/onboarding-explainer.md',
       'plugin/hooks/hooks.json',
       'plugin/hooks/codex-hooks.json',
+      'plugin/hooks/grok-hooks.json',
       'plugin/hooks/qoder-hooks.json',
       'plugin/hooks/qoder-repo-hooks.json',
       'plugin/scripts/bun-runner.js',

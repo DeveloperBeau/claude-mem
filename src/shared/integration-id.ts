@@ -7,6 +7,7 @@
 const INTEGRATION_ID_ALIASES: Readonly<Record<string, string>> = {
   claude: 'claude-code', t3: 't3code', 't3-code': 't3code',
   'pi-mono': 'pi', 'deepseek-harness': 'dsh',
+  'grok-cli': 'grok', 'grok-build': 'grok',
 };
 
 export function canonicalIntegrationId(id: string): string {

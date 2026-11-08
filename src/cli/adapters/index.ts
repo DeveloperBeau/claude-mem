@@ -4,6 +4,7 @@ import { claudeCodeAdapter } from './claude-code.js';
 import { codexAdapter } from './codex.js';
 import { cursorAdapter } from './cursor.js';
 import { devinAdapter } from './devin.js';
+import { grokAdapter } from './grok.js';
 import { kimiAdapter } from './kimi.js';
 import { rawAdapter } from './raw.js';
 import { windsurfAdapter } from './windsurf.js';
@@ -15,6 +16,7 @@ export function getPlatformAdapter(platform: string): PlatformAdapter {
     case 'codex': return codexAdapter;
     case 'cursor': return cursorAdapter;
     case 'devin': return devinAdapter;
+    case 'grok': return grokAdapter;
     case 'kimi': return kimiAdapter;
     case 'windsurf': return windsurfAdapter;
     case 'antigravity': case 'antigravity-cli': return antigravityCliAdapter;
@@ -23,4 +25,4 @@ export function getPlatformAdapter(platform: string): PlatformAdapter {
   }
 }
 
-export { antigravityCliAdapter, claudeCodeAdapter, codexAdapter, cursorAdapter, devinAdapter, kimiAdapter, rawAdapter, windsurfAdapter };
+export { antigravityCliAdapter, claudeCodeAdapter, codexAdapter, cursorAdapter, devinAdapter, grokAdapter, kimiAdapter, rawAdapter, windsurfAdapter };

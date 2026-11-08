@@ -133,6 +133,7 @@ describe('Plugin Distribution - Required Files', () => {
   const requiredFiles = [
     'plugin/hooks/hooks.json',
     'plugin/hooks/codex-hooks.json',
+    'plugin/hooks/grok-hooks.json',
     'plugin/hooks/qoder-hooks.json',
     'plugin/hooks/qoder-repo-hooks.json',
     'plugin/.claude-plugin/plugin.json',
@@ -751,6 +752,15 @@ const RULE_A_EXPECTATIONS: Record<string, Record<string, RuleAExpectation>> = {
     'Stop.0.0': codexHookPair(['hook', 'codex', 'summarize']),
     'PostCompact.0.0': codexHookPair(['hook', 'codex', 'post-compact']),
     'SubagentStart.0.0': codexHookPair(['hook', 'codex', 'subagent-context']),
+  },
+  'plugin/hooks/grok-hooks.json': {
+    'SessionStart.0.0': codexHookPair(['hook', 'grok', 'context'], { timeout: 60 }),
+    'UserPromptSubmit.0.0': codexHookPair(['hook', 'grok', 'session-init'], { timeout: 15 }),
+    'PreToolUse.0.0': codexHookPair(['hook', 'grok', 'file-context'], { timeout: 15 }),
+    'PostToolUse.0.0': codexHookPair(['hook', 'grok', 'observation'], { timeout: 5 }),
+    'PostToolUseFailure.0.0': codexHookPair(['hook', 'grok', 'observation'], { timeout: 5 }),
+    'Stop.0.0': codexHookPair(['hook', 'grok', 'summarize'], { timeout: 120 }),
+    'SessionEnd.0.0': codexHookPair(['hook', 'grok', 'session-end'], { timeout: 20 }),
   },
 };
 

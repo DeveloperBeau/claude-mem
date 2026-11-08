@@ -332,6 +332,54 @@ describe('contextHandler SessionStart path', () => {
     expect(calls).toHaveLength(1);
   });
 
+  it('skips the timeline on Grok load before it contacts the worker', async () => {
+    calls.length = 0;
+    outageNoticeRequests.length = 0;
+    showTerminalOutput = true;
+    workerUnreachable = true;
+    try {
+      const { contextHandler } = await import('../../../src/cli/handlers/context.js');
+      const result = await contextHandler.execute({
+        sessionId: 'session-load-grok',
+        cwd: '/tmp/repo',
+        platform: 'grok',
+        sessionSource: 'load',
+      });
+
+      expect(result).toEqual({
+        hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: '' },
+        exitCode: 0,
+      });
+      expect(calls).toEqual([]);
+      expect(outageNoticeRequests).toEqual([]);
+    } finally {
+      showTerminalOutput = false;
+      workerUnreachable = false;
+    }
+  });
+
+  it('injects the timeline on a new Grok session and skips the terminal copy', async () => {
+    calls.length = 0;
+    showTerminalOutput = true;
+    try {
+      const { contextHandler } = await import('../../../src/cli/handlers/context.js');
+      const result = await contextHandler.execute({
+        sessionId: 'session-new-grok',
+        cwd: '/tmp/repo',
+        platform: 'grok',
+        sessionSource: 'new',
+      });
+
+      expect(result.hookSpecificOutput?.additionalContext).toBe('context from worker');
+      expect(result.systemMessage).toBeUndefined();
+      expect(calls.map(call => call[0])).toEqual([
+        '/api/context/inject?projects=parent-project%2Crepo-project&platformSource=grok&cwd=%2Ftmp%2Frepo',
+      ]);
+    } finally {
+      showTerminalOutput = false;
+    }
+  });
+
   it('re-injects context after Devin compaction and names PostCompaction in the reply', async () => {
     calls.length = 0;
     const { contextHandler } = await import('../../../src/cli/handlers/context.js');
